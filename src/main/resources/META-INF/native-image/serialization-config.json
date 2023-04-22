@@ -1,0 +1,38 @@
+[
+  {
+    "name": "java.util.ArrayList"
+  },
+  {
+    "name": "java.lang.Number"
+  },
+  {
+    "name": "java.lang.Integer"
+  },
+  {
+    "name": "java.lang.Long"
+  },
+  {
+    "name": "java.lang.Double"
+  },
+  {
+    "name": "java.lang.String"
+  },
+  {
+    "name": "java.lang.Boolean"
+  },
+  {
+    "name": "java.lang.Object"
+  },
+  {
+    "name": "org.springframework.data.domain.Sort"
+  },
+  {
+    "name": "org.springframework.data.domain.Page"
+  },
+  {
+    "name": "org.springframework.data.domain.PageRequest"
+  },
+  {
+    "name": "org.springframework.data.domain.Pageable"
+  }
+]

@@ -1,0 +1,153 @@
+---
+server:
+  port: 9090
+  shutdown: graceful
+  forward-headers-strategy: FRAMEWORK
+
+spring:
+  cloud:
+    inetutils:
+      ignoredInterfaces:
+        - docker0
+        - veth.*
+  application:
+    name: template-service
+
+  profiles:
+    active: dev
+      
+  main:
+     allow-bean-definition-overriding: true
+
+  datasource:
+    url: jdbc:mysql://db-mysql:3306/db
+    username: root
+    password: example
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  ## Hibernate Properties
+  # The SQL dialect makes Hibernate generate better SQL for the chosen database
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  
+#  jackson:
+#    date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+#    serialization.WRITE_DATES_AS_TIMESTAMPS: false
+  
+  servlet:
+    multipart:
+     max-file-size: 10MB
+     max-request-size: 10MB
+
+springdoc:
+  swagger-ui:
+    operationsSorter: alpha
+
+cloud:
+  aws:
+    elasticache:
+        clusters: 
+          - name: product-cache
+            expiration: 100
+          
+
+feign.hystrix.enabled: true
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 600000000
+        readTimeout: 100000000
+        logger-level: none
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,prometheus,shutdown"
+  metrics:
+    tags:
+      application: ${spring.application.name}-${spring.profiles.active}
+  endpoint:
+    shutdown:
+      enabled: true
+      
+logging:
+  pattern:
+    dateformat: dd-MM-yyyy HH:mm:ss.SSS,America/Sao_Paulo   
+  level: 
+    #root: DEBUG
+    com.example.template: DEBUG
+    
+
+
+eureka:
+  client:
+    enabled: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    eureka-service-url-poll-interval-seconds: 15
+  instance:
+    preferIpAddress: true  
+
+aws:
+  cognito:
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  
+eureka:
+  client:
+    enabled: false
+
+---
+  
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/db
+
+server:
+  port: 9091
+
+springdoc:
+  swagger-ui:
+    operationsSorter: alpha
+
+eureka:
+  client:
+    enabled: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: false

@@ -1,0 +1,95 @@
+image: docker:latest
+services:
+  - docker:19.03.5-dind
+
+variables:
+  DOCKER_DRIVER: overlay
+  SPRING_PROFILES_ACTIVE: gitlab-ci
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+        - .maven
+
+stages:
+  - build
+  - package
+  - deploydev
+  - deployqa
+  - deployprod
+
+maven-build-native:
+  image: maven:3.8.5-openjdk-17-slim
+  stage: build
+  script: "TAG_NAME=$CI_COMMIT_SHA ./mvnw clean install spring-boot:build-image -Pnative -s ci_settings.xml"
+  only:
+    - develop
+    - /^feature/
+    - /^bugfix/    
+    - tags
+  tags:
+    - docker
+
+docker-publish-native:
+  stage: package
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker push registry.gitlab.com/chefsclub1/$APP_NAME:$CI_COMMIT_SHA
+  only:
+    - develop
+    - /^feature/
+    - /^bugfix/    
+    - tags
+  tags:
+    - docker
+
+deploy-dev:
+  stage: deploydev
+  image: quay.io/lifechurch/k8s-deploy-helper:7.1.0
+  dependencies: []
+  variables:
+    PROFILE: $PROFILE
+  script:
+    - command deploy
+  environment:
+    name: dev
+    url: http://$APP_NAME.dev.developers.chewfsclub.com.br
+  allow_failure: false
+  only:
+    - develop
+    - /^feature/
+    - /^bugfix/
+    - tags       
+
+deploy-qa:
+  stage: deployqa
+  image: quay.io/lifechurch/k8s-deploy-helper:7.1.0
+  dependencies: []
+  variables:
+    PROFILE: $PROFILE
+  script:
+    - command deploy
+  environment:
+    name: qa
+    url: http://$APP_NAME.qa.developers.chewfsclub.com.br
+  allow_failure: false
+  only:
+    - tags
+
+
+deploy-prod:
+  stage: deployprod
+  image: quay.io/lifechurch/k8s-deploy-helper:7.1.0
+  dependencies: []
+  variables:
+    PROFILE: $PROFILE
+  script:
+    - command deploy
+  environment:
+    name: prod
+    url: http://$APP_NAME.chefspay.com.br
+  allow_failure: false
+  when: manual
+  only:
+    - tags

@@ -1,0 +1,75 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $APP_NAME-$CI_ENVIRONMENT_SLUG
+  namespace: $KUBE_NAMESPACE
+  labels:
+    app: $CI_ENVIRONMENT_SLUG
+    space: $KUBE_NAMESPACE
+    track: stable
+spec:
+  selector:
+    matchLabels:
+      app: $CI_ENVIRONMENT_SLUG
+      name: $APP_NAME-$CI_ENVIRONMENT_SLUG
+      track: stable
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  minReadySeconds: $MIN_READY_SECONDS
+  template:
+    metadata:
+      labels:
+        name: $APP_NAME-$CI_ENVIRONMENT_SLUG
+        app: $CI_ENVIRONMENT_SLUG
+        track: stable
+        space: $KUBE_NAMESPACE
+      annotations:
+        build_id: "$CI_JOB_ID"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "9090"
+        prometheus.io/scrape: "true"        
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: $APP_NAME-$CI_ENVIRONMENT_SLUG
+        image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9090
+            protocol: TCP
+            name: http
+        resources:
+          requests:
+            cpu: $CPU_MIN
+            memory: $MEM_MIN
+          limits:
+            cpu: $CPU_MAX
+            memory: $MEM_MAX
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9090
+            scheme: HTTP
+            httpHeaders:
+              - name: Host
+                value: 127.0.0.1
+              - name: Authorization
+                value: Basic aGVhbHRodXNlcjpoZWFsdGh1c2VycGFzcw==
+          initialDelaySeconds: $DELAY_START
+          timeoutSeconds: 2
+          periodSeconds: 3
+          failureThreshold: 10
+        env:
+        - {{SECRETS}}
+        - name: JAVA_OPTIONS
+          value: $JAVA_OPTIONS
+        - name: SPRING_PROFILES_ACTIVE
+          value: $PROFILE
+        - name: BASE_URL_LDR
+          value: $BASE_URL_LDR
+      imagePullSecrets:
+        - name: gitlab-registry
