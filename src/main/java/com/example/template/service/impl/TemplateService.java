@@ -26,17 +26,17 @@ public class TemplateService implements ITemplateService {
 	@Autowired
 	ModelMapper modelMapper;
 
-	private TemplateDTO convertToDto(Template template){
+	protected TemplateDTO convertToDto(Template template){
 		return modelMapper.map(template, TemplateDTO.class);
 	}
 
-	private Template convertToEntity(TemplateDTO templateDTO){
+	protected Template convertToEntity(TemplateDTO templateDTO){
 		return modelMapper.map(templateDTO, Template.class);
 	}
 
 	@Override
 	public ResponseEntity<TemplateDTO> createTemplate(TemplateDTO templateDTO){
-		Template template = this.convertToEntity(templateDTO);
+		Template template = convertToEntity(templateDTO);
 		Optional<Template> optionalTemplate = templateRepository.findOne(Example.of(template));
 		if(optionalTemplate.isPresent()){
 			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
