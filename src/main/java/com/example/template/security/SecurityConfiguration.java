@@ -29,7 +29,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests()
-                .requestMatchers("/v3/api-docs/**","/swagger-ui/**", "/actuator/**").permitAll()
+                .requestMatchers("/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html/**", "/actuator/**").permitAll()
                 .anyRequest().authenticated().and().httpBasic().authenticationEntryPoint(authenticationEntryPoint);
 
         http.csrf().disable();

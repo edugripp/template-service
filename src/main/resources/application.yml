@@ -69,7 +69,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,metrics,prometheus,shutdown"
+        include: "health,info,metrics,prometheus,shutdown,*"
   metrics:
     tags:
       application: ${spring.application.name}-${spring.profiles.active}
@@ -137,7 +137,9 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/db
-
+    username: root
+    password: root
+    
 server:
   port: 9091
 
