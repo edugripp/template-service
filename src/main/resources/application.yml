@@ -106,6 +106,11 @@ spring:
   config:
     activate:
       on-profile: dev
+      
+eureka:
+  client:
+    enabled: false
+          
 ---
 spring:
   config:
@@ -153,3 +158,28 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: false
+    
+    
+---
+  
+spring:
+  config:
+    activate:
+      on-profile: docker-local
+
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/db
+    username: root
+    password: example
+    
+server:
+  port: 9091
+
+springdoc:
+  swagger-ui:
+    operationsSorter: alpha
+
+eureka:
+  client:
+    enabled: false    
+    

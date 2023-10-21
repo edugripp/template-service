@@ -13,6 +13,7 @@ services:
       - ~/data/mysql-data:/var/lib/mysql
     ports:
       - 3306:3306
+    
 
   db-postgres:
     container_name: postgres
@@ -28,6 +29,20 @@ services:
     ports:
       - 5433:5432
 
+      
+  template:
+    container_name: template
+    depends_on:
+      - db-mysql    
+    image: egripp/spring3-native-template/template-service:1.0.0-SNAPSHOT
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    ports:
+      - 9090:9090
+
+
 volumes:
   mysql-data:
   postgres-data:
+
+  
