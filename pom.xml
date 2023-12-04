@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.0-M3</version>
+		<version>3.2.0</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example.template</groupId>
@@ -138,7 +138,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<compilerVersion>11</compilerVersion>
+					<compilerVersion>21</compilerVersion>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -170,7 +170,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<builder>paketobuildpacks/builder-jammy-base:0.4.236</builder>
+						<builder>paketobuildpacks/builder-jammy-base:0.4.257</builder>
 						<env>
 							<BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
 							<BP_JVM_VERSION>21</BP_JVM_VERSION>
