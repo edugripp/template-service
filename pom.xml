@@ -176,7 +176,7 @@
 							<BP_JVM_VERSION>21</BP_JVM_VERSION>
 						</env>
 						<!--						<pullPolicy>IF_NOT_PRESENT</pullPolicy>-->
-						<name>${registry}/${project.name}:${env.TAG_NAME}</name>
+						<name>${registry}/${project.name}:${project.version}</name>
 					</image>
 					<!-- <docker> -->
 					<!-- Remote access to  Docker Daemon -->
