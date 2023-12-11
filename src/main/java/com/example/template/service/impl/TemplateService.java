@@ -49,15 +49,20 @@ public class TemplateService implements ITemplateService {
 
 	@Override
 	public ResponseEntity<TemplateDTO> updateTemplate(Long id, TemplateDTO templateDTO){
-		Template template = this.convertToEntity(templateDTO);
-		Optional<Template> optionalTemplate = templateRepository.findOne(Example.of(template));
-		if(optionalTemplate.isPresent()){
-
-			return new ResponseEntity<>(convertToDto(templateRepository.save(template)),
-					HttpStatus.OK);
+		Optional<Template> optionalTemplate = templateRepository.findById(id);
+		if(optionalTemplate.isEmpty()){
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		Template template = this.convertToEntity(templateDTO);
+		optionalTemplate = templateRepository.findOne(Example.of(template));
+		if(optionalTemplate.isPresent() && optionalTemplate.get().getId().longValue() != id.longValue()){
+			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+
+		template.setId(id);
+		return new ResponseEntity<>(convertToDto(templateRepository.save(template)),
+				HttpStatus.OK);
 	}
 
 	@Override
