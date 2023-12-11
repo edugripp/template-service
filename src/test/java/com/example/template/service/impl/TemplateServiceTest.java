@@ -93,7 +93,8 @@ public class TemplateServiceTest {
     @Test
     @DisplayName("Update Template - Success")
     public void testUpdateTemplateSuccess() {
-        when(templateRepository.findOne(any(Example.class))).thenReturn(Optional.of(template));
+        when(templateRepository.findById(any())).thenReturn(Optional.of(template));
+        when(templateRepository.findOne(any(Example.class))).thenReturn(Optional.empty());
         when(templateRepository.save(any(Template.class))).thenReturn(template);
         when(modelMapper.map(any(Template.class), any())).thenReturn(templateDTO);
 
