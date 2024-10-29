@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<spring-cloud.version>2023.0.0-M2</spring-cloud.version>
-		<sonar.organization>chefsclub1</sonar.organization>
+		<sonar.organization>edumgripp</sonar.organization>
 		<registry>egripp/spring3-native-template</registry>
 	</properties>
 	<dependencies>
@@ -170,7 +170,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<builder>paketobuildpacks/builder-jammy-base:0.4.257</builder>
+						<builder>paketobuildpacks/builder-jammy-base:0.4.342</builder>
 						<env>
 							<BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
 							<BP_JVM_VERSION>21</BP_JVM_VERSION>

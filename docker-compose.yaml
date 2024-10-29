@@ -4,7 +4,6 @@ services:
   db-mysql:
     container_name: db-mysql
     image: mysql
-    command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: example
@@ -34,9 +33,9 @@ services:
     container_name: template
     depends_on:
       - db-mysql    
-    image: egripp/spring3-native-template/template-service:1.0.0-SNAPSHOT
+    image:  docker.io/egripp/spring3-native-template/template-service:1.0.0
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: dev
     ports:
       - 9090:9090
 
