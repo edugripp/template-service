@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.0</version>
+		<version>3.2.3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example.template</groupId>
@@ -16,9 +16,10 @@
 	<description>Template Service</description>
 	<properties>
 		<java.version>21</java.version>
-		<spring-cloud.version>2023.0.0-M2</spring-cloud.version>
+		<spring-cloud.version>2023.0.0</spring-cloud.version>
 		<sonar.organization>edumgripp</sonar.organization>
 		<registry>egripp/spring3-native-template</registry>
+		<hibernate.version>6.2.7.Final</hibernate.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -56,7 +57,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.30</version>
+			<version>8.0.33</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -88,19 +89,19 @@
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
-			<version>2.3.2</version>
+			<version>3.2.0</version>
 		</dependency>
 		<!--
 		https://mvnrepository.com/artifact/org.sonarsource.scanner.maven/sonar-maven-plugin -->
 		<dependency>
 			<groupId>org.sonarsource.scanner.maven</groupId>
 			<artifactId>sonar-maven-plugin</artifactId>
-			<version>3.6.0.1398</version>
+			<version>3.10.0.2594</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.0.4</version>
+			<version>2.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -144,24 +145,6 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.hibernate.orm.tooling</groupId>
-				<artifactId>hibernate-enhance-maven-plugin</artifactId>
-				<version>${hibernate.version}</version>
-				<executions>
-					<execution>
-						<id>enhance</id>
-						<goals>
-							<goal>enhance</goal>
-						</goals>
-						<configuration>
-							<enableLazyInitialization>true</enableLazyInitialization>
-							<enableDirtyTracking>true</enableDirtyTracking>
-							<enableAssociationManagement>true</enableAssociationManagement>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
 			</plugin>
@@ -174,14 +157,10 @@
 						<env>
 							<BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
 							<BP_JVM_VERSION>21</BP_JVM_VERSION>
+							<BP_NATIVE_IMAGE_BUILD_ARGUMENTS>-H:+UnlockExperimentalVMOptions -H:+ReportExceptionStackTraces -H:+AddAllCharsets</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
 						</env>
-						<!--						<pullPolicy>IF_NOT_PRESENT</pullPolicy>-->
 						<name>${registry}/${project.name}:${project.version}</name>
 					</image>
-					<!-- <docker> -->
-					<!-- Remote access to  Docker Daemon -->
-					<!-- 	<host>tcp://host:port</host>
-					</docker> -->
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -206,13 +185,15 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-
-
+		<repository>
+			<id>mysql</id>
+			<name>MySQL Repository</name>
+			<url>https://repo.mysql.com/maven2</url>
+		</repository>
 		<repository>
 			<id>netflix-candidates</id>
 			<name>Netflix Candidates</name>
-			<url>
-				https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-candidates</url>
+			<url>https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-candidates</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>

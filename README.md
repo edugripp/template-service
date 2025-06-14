@@ -127,3 +127,44 @@ And finally, build the image and run it connecting to the network:
 ```shell
 $ export TAG_NAME="1.0.0-SNAPSHOT" && ./mvnw spring-boot:build-image -Pnative -DskipTests && docker run --rm --network db-mysql -p 9090:9090 egripp/spring3-native-template/template-service:$TAG_NAME
 ```
+
+## Build para Mac ARM (Apple Silicon)
+
+Se você está usando um Mac com processador Apple Silicon (ARM), é necessário gerar a imagem nativa para a arquitetura ARM. Use o comando abaixo:
+
+```sh
+./mvnw spring-boot:build-image -Pnative -DskipTests \
+  -Dspring-boot.build-image.imageName=egripp/spring3-native-template/template-service:1.0.0 \
+  -Dspring-boot.build-image.builder=paketobuildpacks/builder-jammy-base:0.4.342 \
+  -Dspring-boot.build-image.platform=linux/arm64
+```
+
+Depois, rode normalmente com o Docker Compose ou o comando:
+
+```sh
+docker run --rm --network template-service_default -p 9090:9090 -e SPRING_PROFILES_ACTIVE=dev egripp/spring3-native-template/template-service:1.0.0
+```
+
+> Se você tentar rodar uma imagem x86_64 em um Mac ARM, verá o erro `failed to open elf at /lib64/ld-linux-x86-64.so.2`. Sempre gere a imagem para a arquitetura correta!
+
+### Troubleshooting
+
+Se você ainda encontrar o erro `rosetta error: failed to open elf at /lib64/ld-linux-x86-64.so.2` mesmo após usar o comando acima, verifique se:
+
+- O parâmetro `-Dspring-boot.build-image.platform=linux/arm64` foi realmente aplicado durante o build.
+- A imagem gerada foi corretamente taggeada para ARM. Você pode verificar isso com o comando:
+
+```sh
+docker inspect egripp/spring3-native-template/template-service:1.0.0 | grep Architecture
+```
+
+Se a arquitetura não estiver correta, tente limpar o cache do Docker e reconstruir a imagem:
+
+```sh
+docker builder prune -f
+./mvnw clean
+./mvnw spring-boot:build-image -Pnative -DskipTests \
+  -Dspring-boot.build-image.imageName=egripp/spring3-native-template/template-service:1.0.0 \
+  -Dspring-boot.build-image.builder=paketobuildpacks/builder-jammy-base:0.4.342 \
+  -Dspring-boot.build-image.platform=linux/arm64
+```
