@@ -5,6 +5,7 @@ services:
     container_name: db-mysql
     image: mysql
     restart: always
+    command: --max_connections=2000
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: db
@@ -13,19 +14,22 @@ services:
     ports:
       - 3306:3306
 
-
   template:
     container_name: template
     depends_on:
-      - db-mysql    
-    image:  docker.io/egripp/spring3-native-template/template-service:1.0.0
+      - db-mysql
+    image: docker.io/egripp/spring3-native-template/template-service:1.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
     environment:
       SPRING_PROFILES_ACTIVE: dev
     ports:
       - 9090:9090
 
-
 volumes:
   mysql-data:
 
-  
+
