@@ -25,8 +25,8 @@ spring:
     password: example
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 5
-      minimum-idle: 2
+      maximum-pool-size: 10
+      minimum-idle: 5
   threads:
     virtual:
       enabled: true
