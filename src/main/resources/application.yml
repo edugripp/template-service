@@ -27,12 +27,18 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
-  ## Hibernate Properties
-  # The SQL dialect makes Hibernate generate better SQL for the chosen database
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+          region.factory_class: org.hibernate.cache.internal.NoCachingRegionFactory
+        generate_statistics: false
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
   
 #  jackson:
 #    date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
@@ -144,9 +150,40 @@ spring:
     url: jdbc:mysql://localhost:3306/db
     username: root
     password: example
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+    
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+          region.factory_class: org.hibernate.cache.internal.NoCachingRegionFactory
+    open-in-view: false
+    
+  main:
+    lazy-initialization: true
+    allow-bean-definition-overriding: true
     
 server:
   port: 9091
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    connection-timeout: 5000
+    max-connections: 10000
+    accept-count: 100
 
 springdoc:
   swagger-ui:

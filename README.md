@@ -168,3 +168,51 @@ docker builder prune -f
   -Dspring-boot.build-image.builder=paketobuildpacks/builder-jammy-base:0.4.342 \
   -Dspring-boot.build-image.platform=linux/arm64
 ```
+
+# Passo a passo para Lambda Native
+
+## 1. Gerar a imagem nativa (ajuste para Mac ARM se necessário)
+
+```sh
+SPRING_PROFILES_ACTIVE=lambda ./mvnw spring-boot:build-image -Pnative -DskipTests \
+  -Dspring-boot.build-image.imageName=egripp/spring3-native-template/template-service:1.0.0 \
+  -Dspring-boot.build-image.builder=dashaun/builder:tiny \
+  -Dspring-boot.build-image.platform=linux/arm64
+```
+
+## 2. Executar o container para gerar o binário (em background)
+
+```sh
+docker-compose up -d template
+```
+
+## 3. Extrair o binário nativo do container rodando
+
+```sh
+docker cp template:/workspace/com.example.template.TemplateServiceApplication target/template-service
+```
+
+## 4. Criar a imagem Lambda
+
+```sh
+docker build -t template-service-lambda:latest -f Dockerfile.lambda .
+```
+
+## 5. Rodar o teste local Lambda apontando para o MySQL do host
+
+```sh
+ docker run -e SPRING_PROFILES_ACTIVE=lambda \
+  -e _HANDLER=org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest \
+  -p 9000:8080 template-service-lambda:latest
+
+```
+
+## 6. Invocar o Lambda localmente
+
+Em outro terminal:
+
+```sh
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d @test-event.json
+```
+
+> Certifique-se de que o MySQL está rodando localmente na porta 3306.

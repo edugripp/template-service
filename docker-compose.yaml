@@ -12,23 +12,8 @@ services:
       - ~/data/mysql-data:/var/lib/mysql
     ports:
       - 3306:3306
-    
 
-  db-postgres:
-    container_name: postgres
-    image: postgres
-    restart: always
-    environment:
-      DB_NAME: postgres
-      DB_USER: postgres
-      DB_PASS: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - ~/data/postgres-data:/var/lib/postgresql/data
-    ports:
-      - 5433:5432
 
-      
   template:
     container_name: template
     depends_on:
@@ -42,6 +27,5 @@ services:
 
 volumes:
   mysql-data:
-  postgres-data:
 
   

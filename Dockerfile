@@ -1,15 +1,12 @@
-FROM ubuntu:22.04
+FROM dashaun/builder:tiny-java-21 AS builder
 
 WORKDIR /app
+COPY . .
 
-# Copy the native executable
-COPY target/template-service /app/template-service
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 
-# Make it executable
-RUN chmod +x /app/template-service
+RUN ./mvnw clean package -Pnative -DskipTests
 
-# Expose the application port
-EXPOSE 9090
-
-# Run the native executable
+FROM scratch
+COPY --from=builder /app/target/template-service /app/template-service
 ENTRYPOINT ["/app/template-service"]
