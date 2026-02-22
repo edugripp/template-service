@@ -29,10 +29,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.context.annotation.Profile;
 
-@Profile("!lambda")
-@CrossOrigin(origins = "*", methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE} )
+@CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT,
+		RequestMethod.DELETE })
 @RequestMapping("/template")
 @RestController
 @Slf4j
@@ -48,43 +47,38 @@ public class TemplateController {
 	IExampleClient exampleClient;
 
 	@GetMapping(value = "/google")
-	public ResponseEntity<String> getGoogle(){
+	public ResponseEntity<String> getGoogle() {
 		return exampleClient.getGoogleHomePage();
 	}
 
 	@PostMapping(value = "/")
 	@Operation(description = "Create template")
-	@ApiResponses(
-			value = {
-					@ApiResponse(responseCode = "201", description = "Template created"),
-					@ApiResponse(responseCode = "422", description = "Template already exist", content = @Content( schema = @Schema( not = TemplateDTO.class)))
-			}
-	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Template created"),
+			@ApiResponse(responseCode = "422", description = "Template already exist", content = @Content(schema = @Schema(not = TemplateDTO.class)))
+	})
 	public ResponseEntity<TemplateDTO> createTemplate(@RequestBody TemplateDTO templateDTO) {
 		return templateService.createTemplate(templateDTO);
 	}
 
 	@PutMapping(value = "/{id}")
 	@Operation(description = "Update template")
-	@ApiResponses(
-			value = {
-					@ApiResponse(responseCode = "200", description = "Template updated"),
-					@ApiResponse(responseCode = "404", description = "Template not found", content = @Content( schema = @Schema( not = TemplateDTO.class)))
-			}
-	)
-	public ResponseEntity<TemplateDTO> updateTemplate(@PathVariable(value = "id") Long id, @RequestBody TemplateDTO templateDTO) {
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Template updated"),
+			@ApiResponse(responseCode = "404", description = "Template not found", content = @Content(schema = @Schema(not = TemplateDTO.class)))
+	})
+	public ResponseEntity<TemplateDTO> updateTemplate(@PathVariable(value = "id") Long id,
+			@RequestBody TemplateDTO templateDTO) {
 
 		return templateService.updateTemplate(id, templateDTO);
 	}
 
 	@GetMapping(value = "/{id}")
 	@Operation(description = "Get template")
-	@ApiResponses(
-			value = {
-					@ApiResponse(responseCode = "200", description = "Template found"),
-					@ApiResponse(responseCode = "404", description = "Template not found", content = @Content( schema = @Schema( not = TemplateDTO.class)))
-			}
-	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Template found"),
+			@ApiResponse(responseCode = "404", description = "Template not found", content = @Content(schema = @Schema(not = TemplateDTO.class)))
+	})
 	public ResponseEntity<TemplateDTO> getTemplate(@PathVariable(value = "id") Long id) {
 
 		return templateService.getTemplate(id);
@@ -96,10 +90,9 @@ public class TemplateController {
 	@Parameter(hidden = true, name = "sortField")
 	@ApiResponse(responseCode = "200", description = "Template found")
 	public ResponseEntity<Page<TemplateDTO>> getTemplates(@RequestParam(defaultValue = "1") @Positive int page,
-														  @RequestParam(defaultValue = "10") @Min(10) @Max(100) int pageSize,
-														  @RequestParam(defaultValue = "asc", required = false) String sort,
-														  @RequestParam(defaultValue = "id", required = false) String sortField
-	) {
+			@RequestParam(defaultValue = "10") @Min(10) @Max(100) int pageSize,
+			@RequestParam(defaultValue = "asc", required = false) String sort,
+			@RequestParam(defaultValue = "id", required = false) String sortField) {
 
 		return templateService.getTemplates(page, pageSize);
 	}
