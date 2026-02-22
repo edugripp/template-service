@@ -1,0 +1,19 @@
+description = "Custom Paketo Builder for Java 25 Native Image on ARM64"
+
+[[buildpacks]]
+uri = "urn:cnb:registry:paketo-buildpacks/java-native-image"
+version = "14.1.0" # This is the latest Java buildpack family that contains Java 25 support
+
+[[order]]
+[[order.group]]
+id = "paketo-buildpacks/java-native-image"
+version = "14.1.0"
+
+[stack]
+id = "io.buildpacks.stacks.jammy.tiny"
+build-image = "paketobuildpacks/build-jammy-tiny:latest"
+run-image = "paketobuildpacks/run-jammy-tiny:latest"
+
+[[targets]]
+os = "linux"
+arch = "arm64"

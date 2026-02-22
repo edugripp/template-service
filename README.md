@@ -128,15 +128,23 @@ And finally, build the image and run it connecting to the network:
 $ export TAG_NAME="1.0.0-SNAPSHOT" && ./mvnw spring-boot:build-image -Pnative -DskipTests && docker run --rm --network db-mysql -p 9090:9090 egripp/spring3-native-template/template-service:$TAG_NAME
 ```
 
-## Build para Mac ARM (Apple Silicon)
+## Build para Mac ARM (Apple Silicon) e Windows/Linux (x86_64)
 
-Se você está usando um Mac com processador Apple Silicon (ARM), é necessário gerar a imagem nativa para a arquitetura ARM. Use o comando abaixo:
+> ⚠️ **DISCLAIMER SOBRE A IMAGEM DE BUILD:**
+>
+> O `pom.xml` já vem configurado de fábrica com a tag `<builder>arturds/builder-arm64:latest</builder>`.
+> Essa imagem possui o compilador **Java 25** configurado via `buildpacks` especificamente para processadores **Apple Silicon (ARM64)**, evitando bugs crônicos de manifestos no Docker Desktop do Mac.
+>
+> 🔻 **Se você não está usando um Mac ARM (ex: Windows, Linux x86_64, ou Mac Intel):** 🔻
+> Você precisará substituir o `<builder>` no seu `pom.xml` para a versão x86_64 oficial, ou passar via parâmetro:
+> ```sh
+> ./mvnw spring-boot:build-image -Pnative -DskipTests -Dspring-boot.build-image.builder=paketobuildpacks/builder-jammy-base:latest
+> ```
+
+Se você está usando um Mac M1/M2/M3, basta acionar a fase de Build Native sem precisar de nenhum hack adicional (a imagem base predefinida já funciona maravilhosamente bem com Java 25 Native):
 
 ```sh
-./mvnw spring-boot:build-image -Pnative -DskipTests \
-  -Dspring-boot.build-image.imageName=egripp/spring3-native-template/template-service:1.0.0 \
-  -Dspring-boot.build-image.builder=paketobuildpacks/builder-jammy-base:0.4.342 \
-  -Dspring-boot.build-image.platform=linux/arm64
+./mvnw spring-boot:build-image -Pnative -DskipTests
 ```
 
 Depois, rode normalmente com o Docker Compose ou o comando:
@@ -173,11 +181,11 @@ docker builder prune -f
 
 ## 1. Gerar a imagem nativa (ajuste para Mac ARM se necessário)
 
+## 1. Gerar a imagem nativa
+
 ```sh
 SPRING_PROFILES_ACTIVE=lambda ./mvnw spring-boot:build-image -Pnative -DskipTests \
-  -Dspring-boot.build-image.imageName=egripp/spring3-native-template/template-service:1.0.0 \
-  -Dspring-boot.build-image.builder=dashaun/builder:tiny \
-  -Dspring-boot.build-image.platform=linux/arm64
+  -Dspring-boot.build-image.imageName=egripp/spring3-native-template/template-service:1.0.0
 ```
 
 ## 2. Executar o container para gerar o binário (em background)
@@ -216,3 +224,31 @@ curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d
 ```
 
 > Certifique-se de que o MySQL está rodando localmente na porta 3306.
+
+---
+
+# Apêndice: Como atualizar a nossa Imagem de Builder (arturds/builder-arm64)
+
+Caso a comunidade disponibilize uma nova versão do Java (ex: Java 26 ou 27) e você precise construir um novo *Paketo Builder* adaptado para os Macs do projeto, siga este passo a passo:
+
+1. **Instale a ferramenta oficial `pack`:**
+   No Mac, acesse via terminal e rode:
+   ```bash
+   brew install buildpacks/tap/pack
+   ```
+2. **Edite o `builder.toml` na raiz do projeto:**
+   O arquivo `builder.toml` contém as prescrições de como o builder é empacotado. Altere a `version` associada ao `java-native-image` para a numeração mais recente divulgada na [Paketo Releases](https://github.com/paketo-buildpacks/java-native-image/releases). 
+   *(Certifique-se de alterar as linhas em `[[buildpacks]]` e em `[[order.group]]` para baterem).*
+3. **Recompile a imagem localmente forçando arquitetura arm64:**
+   ```bash
+   pack builder create arturds/builder-arm64:latest --config builder.toml
+   ```
+4. **Envie para o repositório público (Docker Hub):**
+   ```bash
+   docker login
+   # Substitua :java25 pela nova versão, por exemplo :java27
+   docker tag arturds/builder-arm64:latest arturds/builder-arm64:java123
+   docker push arturds/builder-arm64:java123
+   docker push arturds/builder-arm64:latest
+   ```
+Feito isto, todos do projeto receberão a nova versão da máquina de compilação quando fizerem builds.

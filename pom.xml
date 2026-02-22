@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
+		<version>3.5.0-M3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example.template</groupId>
@@ -15,14 +15,14 @@
 	<name>template-service</name>
 	<description>Template Service</description>
 	<properties>
-		<java.version>21</java.version>
+		<java.version>25</java.version>
 		<spring-cloud.version>2024.0.1</spring-cloud.version>
 		<sonar.organization>edumgripp</sonar.organization>
 		<registry>egripp/spring3-native-template</registry>
 		<hibernate.version>6.6.9.Final</hibernate.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<avaje.jsonb.version>3.11</avaje.jsonb.version>
-		<lombok.version>1.18.36</lombok.version>
+		<lombok.version>1.18.42</lombok.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -157,8 +157,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<source>25</source>
+					<target>25</target>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
@@ -181,7 +181,7 @@
 							<version>${avaje.jsonb.version}</version>
 						</path>
 					</annotationProcessorPaths>
-					<compilerVersion>21</compilerVersion>
+					<compilerVersion>25</compilerVersion>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -194,12 +194,13 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<mainClass>com.example.template.TemplateServiceApplication</mainClass>
 					<image>
-						<builder>dashaun/builder:tiny</builder>
-						<!--						<builder>paketobuildpacks/builder-jammy-base:0.4.257</builder>-->
+						<builder>arturds/builder-arm64:latest</builder>
+						<pullPolicy>IF_NOT_PRESENT</pullPolicy>
 						<env>
 							<BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
-							<BP_JVM_VERSION>21</BP_JVM_VERSION>
+							<BP_JVM_VERSION>25</BP_JVM_VERSION>
 							<BP_NATIVE_IMAGE_BUILD_ARGUMENTS>-H:+UnlockExperimentalVMOptions -H:+ReportExceptionStackTraces -H:+AddAllCharsets</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
 						</env>
 						<name>${registry}/${project.name}:${project.version}</name>
@@ -213,6 +214,17 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<configuration>
+						<argLine>-Dnet.bytebuddy.experimental=true</argLine>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 	<repositories>
 		<repository>

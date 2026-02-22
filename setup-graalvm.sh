@@ -1,17 +1,24 @@
 #!/bin/bash
 
-# Set GraalVM home
-GRAALVM_HOME="/opt/homebrew/Caskroom/graalvm-jdk21/21.0.7/graalvm-jdk-21.0.7+9.1/Contents/Home"
+echo "Starting JDK 25 Native Image environment setup..."
 
-# Add to your shell profile
-echo "export GRAALVM_HOME=$GRAALVM_HOME" >> ~/.zshrc
-echo "export PATH=\$GRAALVM_HOME/bin:\$PATH" >> ~/.zshrc
-echo "export JAVA_HOME=\$GRAALVM_HOME" >> ~/.zshrc
+if ! command -v sdk &> /dev/null
+then
+    echo "SDKMAN not found. Installing SDKMAN first..."
+    curl -s "https://get.sdkman.io" | bash
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+fi
 
-# Source the profile
-source ~/.zshrc
+echo "Installing OpenJDK 25..."
+sdk install java 25-open
+sdk use java 25-open
 
-# Install native-image
-$GRAALVM_HOME/bin/gu install native-image
+# In recent Java versions, GraalVM native-image runs out-of-the-box or is bundled differently.
+# `gu install` is deprecated or removed in modern Oracle GraalVM distributions. 
 
-echo "GraalVM setup complete! Please restart your terminal or run 'source ~/.zshrc'" 
+echo "Java 25 setup complete!"
+echo "If you use a Mac M1/M2/M3 (ARM64), remember that the Maven build is pre-configured to build the Container Image natively:"
+echo "./mvnw spring-boot:build-image -Pnative -DskipTests"
+echo ""
+echo "Please restart your terminal or run this command in your current shell:"
+echo "source ~/.sdkman/bin/sdkman-init.sh && sdk use java 25-open"
