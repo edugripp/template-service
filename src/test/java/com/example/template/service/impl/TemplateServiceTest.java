@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.modelmapper.ModelMapper;
+import com.example.template.mapper.TemplateMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -38,7 +38,7 @@ public class TemplateServiceTest {
     private ITemplateDAO templateRepository;
 
     @Mock
-    private ModelMapper modelMapper;
+    private TemplateMapper templateMapper;
 
     @Spy
     @InjectMocks
@@ -61,7 +61,7 @@ public class TemplateServiceTest {
         template.setId(1L);
         template.setDescription("Template 1");
 
-        //mocking ModelMapper conversions
+        // mocking ModelMapper conversions
         doReturn(templateDTO).when(templateService).convertToDto(any(Template.class));
         doReturn(template).when(templateService).convertToEntity(any(TemplateDTO.class));
     }
@@ -71,7 +71,6 @@ public class TemplateServiceTest {
     public void testCreateTemplateSuccess() {
         when(templateRepository.findOne(any(Example.class))).thenReturn(Optional.empty());
         when(templateRepository.save(any(Template.class))).thenReturn(template);
-
 
         ResponseEntity<TemplateDTO> response = templateService.createTemplate(templateDTO);
 
@@ -96,7 +95,7 @@ public class TemplateServiceTest {
         when(templateRepository.findById(any())).thenReturn(Optional.of(template));
         when(templateRepository.findOne(any(Example.class))).thenReturn(Optional.empty());
         when(templateRepository.save(any(Template.class))).thenReturn(template);
-        when(modelMapper.map(any(Template.class), any())).thenReturn(templateDTO);
+        when(templateMapper.toDto(any(Template.class))).thenReturn(templateDTO);
 
         ResponseEntity<TemplateDTO> response = templateService.updateTemplate(1L, templateDTO);
 
@@ -119,7 +118,7 @@ public class TemplateServiceTest {
     @DisplayName("Get Template - Success")
     public void testGetTemplateSuccess() {
         when(templateRepository.findById(any())).thenReturn(Optional.of(template));
-        when(modelMapper.map(any(Template.class), any())).thenReturn(templateDTO);
+        when(templateMapper.toDto(any(Template.class))).thenReturn(templateDTO);
 
         ResponseEntity<TemplateDTO> response = templateService.getTemplate(1L);
 
@@ -142,7 +141,7 @@ public class TemplateServiceTest {
     public void testGetTemplatesWhenPageContentIsNotEmpty() {
         // Arrange
         List<TemplateDTO> templates = Collections.singletonList(templateDTO);
-        Page<TemplateDTO> page = new PageImpl<>(templates, PageRequest.of(0,10), 1);
+        Page<TemplateDTO> page = new PageImpl<>(templates, PageRequest.of(0, 10), 1);
         when(templateRepository.findAllTemplates(any(PageRequest.class))).thenReturn(page);
 
         // Act
@@ -158,7 +157,7 @@ public class TemplateServiceTest {
     @DisplayName("Get Template - Fill")
     public void testGetTemplatesWhenPageContentIsEmpty() {
         // Arrange
-        Page<TemplateDTO> page = new PageImpl<>(Collections.emptyList(), PageRequest.of(0,10), 0);
+        Page<TemplateDTO> page = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
         when(templateRepository.findAllTemplates(any(PageRequest.class))).thenReturn(page);
 
         // Act

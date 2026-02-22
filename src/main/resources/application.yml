@@ -14,7 +14,7 @@ spring:
     name: template-service
 
   profiles:
-    active: dev
+    active: local
       
   main:
      allow-bean-definition-overriding: true
@@ -27,6 +27,9 @@ spring:
     hikari:
       maximum-pool-size: 200
       minimum-idle: 10
+  threads:
+    virtual:
+      enabled: true
   jpa:
     hibernate:
       ddl-auto: update
@@ -179,7 +182,7 @@ spring:
     allow-bean-definition-overriding: true
     
 server:
-  port: 9091
+  port: 9090
   tomcat:
     threads:
       max: 200

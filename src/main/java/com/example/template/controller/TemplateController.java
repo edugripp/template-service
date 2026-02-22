@@ -80,7 +80,7 @@ public class TemplateController {
 			@ApiResponse(responseCode = "404", description = "Template not found", content = @Content(schema = @Schema(not = TemplateDTO.class)))
 	})
 	public ResponseEntity<TemplateDTO> getTemplate(@PathVariable(value = "id") Long id) {
-
+		log.info("GET /template/{} running on thread: {}", id, Thread.currentThread());
 		return templateService.getTemplate(id);
 	}
 
