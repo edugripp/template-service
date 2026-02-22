@@ -259,11 +259,10 @@
 								<enabled>true</enabled>
 							</metadataRepository>
 							<buildArgs>
+								<buildArg>-O3</buildArg>
 								<buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
 								<buildArg>-H:+ReportExceptionStackTraces</buildArg>
 								<buildArg>-H:+AddAllCharsets</buildArg>
-								<buildArg>-H:+AllowVMInspection</buildArg>
-								<buildArg>-H:+JFR</buildArg>
 							</buildArgs>
 						</configuration>
 					</plugin>

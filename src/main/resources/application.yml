@@ -25,8 +25,8 @@ spring:
     password: example
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 200
-      minimum-idle: 10
+      maximum-pool-size: 5
+      minimum-idle: 2
   threads:
     virtual:
       enabled: true
@@ -93,8 +93,8 @@ logging:
   pattern:
     dateformat: dd-MM-yyyy HH:mm:ss.SSS,America/Sao_Paulo   
   level: 
-    #root: DEBUG
-    com.example.template: DEBUG
+    #root: INFO
+    com.example.template: INFO
     
 
 

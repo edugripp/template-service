@@ -26,6 +26,7 @@ services:
           memory: 1G
     environment:
       SPRING_PROFILES_ACTIVE: dev
+    command: [ "-Xmx800m", "-Xms800m" ]
     ports:
       - 9090:9090
 
