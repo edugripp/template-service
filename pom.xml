@@ -201,7 +201,7 @@
 						<env>
 							<BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
 							<BP_JVM_VERSION>25</BP_JVM_VERSION>
-							<BP_NATIVE_IMAGE_BUILD_ARGUMENTS>-H:+UnlockExperimentalVMOptions -H:+ReportExceptionStackTraces -H:+AddAllCharsets</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
+							<BP_NATIVE_IMAGE_BUILD_ARGUMENTS>-O3 -H:+UnlockExperimentalVMOptions -H:+ReportExceptionStackTraces -H:+AddAllCharsets</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
 						</env>
 						<name>${registry}/${project.name}:${project.version}</name>
 					</image>
