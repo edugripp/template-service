@@ -11,10 +11,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 @SQLDelete(sql = "UPDATE template SET active = false WHERE id=?")
-@Where(clause = "active=true")
+@SQLRestriction("active=true")
 @Entity(name = "template")
 @Table
 @Data
@@ -30,6 +30,7 @@ public class Template {
     @Column(name = "description")
     private String description;
 
+    @Builder.Default
     @Column(name = "active")
     private Boolean active = true;
 

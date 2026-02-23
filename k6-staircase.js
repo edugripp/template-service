@@ -1,32 +1,20 @@
 import http from 'k6/http';
 import { check } from 'k6';
 import { Counter } from 'k6/metrics';
+import exec from 'k6/execution';
 
 // Custom metric to summarize the total successful requests explicitly in the terminal output
-export const successfulRequests = new Counter('successful_requests_200_ok');
+export const successfulRequests = new Counter('successful_requests_valid');
 
 export const options = {
     scenarios: {
-        staircase: {
-            executor: 'ramping-arrival-rate',
-            startRate: 1,
+        constant_load: {
+            executor: 'constant-arrival-rate',
+            rate: 1100,
             timeUnit: '1s',
-            preAllocatedVUs: 10,
-            maxVUs: 3000,
-            stages: [
-                { duration: '10s', target: 50 },
-                { duration: '10s', target: 100 },
-                { duration: '10s', target: 200 },
-                { duration: '10s', target: 300 },
-                { duration: '10s', target: 400 },
-                { duration: '10s', target: 500 },
-                { duration: '10s', target: 600 },
-                { duration: '10s', target: 800 },
-                { duration: '10s', target: 1000 },
-                { duration: '10s', target: 1300 },
-                { duration: '10s', target: 1600 },
-                { duration: '10s', target: 2000 },
-            ],
+            duration: '1m',
+            preAllocatedVUs: 1000,
+            maxVUs: 10000,
         },
     },
     thresholds: {
@@ -45,7 +33,7 @@ const BASE_URL = 'http://localhost:9090';
 
 export function setup() {
     console.log("-----------------------------------------");
-    console.log("🚀 K6 Load Test Starting: Aiming for 2000 RPS");
+    console.log("🚀 K6 Load Test Starting: Aiming for Constant 1000 RPS (Mixed Workload)");
     console.log("-----------------------------------------");
 
     const loginRes = http.post(`${BASE_URL}/auth/login`, JSON.stringify({
@@ -74,17 +62,39 @@ export default function (data) {
         },
     };
 
-    const randomPage = Math.floor(Math.random() * 10) + 1; // 1 to 10
-    const randomPageSize = Math.floor(Math.random() * 41) + 10; // 10 to 50
+    const actionType = Math.random(); // 0.0 to 1.0
+    let res;
 
-    let listRes = http.get(`${BASE_URL}/template?page=${randomPage}&pageSize=${randomPageSize}`, params);
+    if (actionType < 0.6) {
+        // 60% chance: GET /template (Paginated List)
+        const randomPage = Math.floor(Math.random() * 10) + 1; // 1 to 10
+        const randomPageSize = Math.floor(Math.random() * 41) + 10; // 10 to 50
+        res = http.get(`${BASE_URL}/template?page=${randomPage}&pageSize=${randomPageSize}`, params);
 
-    const success = check(listRes, {
-        'GET List status 200': (r) => r.status === 200,
-    });
+        const success = check(res, { 'GET List status 200 or 404': (r) => r.status === 200 || r.status === 404 });
+        if (success) successfulRequests.add(1);
 
-    if (success) {
-        successfulRequests.add(1);
+    } else if (actionType < 0.9) {
+        // 30% chance: GET /template/{id} (Single Item ID)
+        const randomId = Math.floor(Math.random() * 500) + 1; // ID 1 to 500
+        res = http.get(`${BASE_URL}/template/${randomId}`, params);
+
+        const success = check(res, { 'GET ID status 200 or 404': (r) => r.status === 200 || r.status === 404 });
+        if (success) successfulRequests.add(1);
+
+    } else {
+        // 10% chance: POST /template (Create)
+        const payload = JSON.stringify({
+            description: `K6 Load Test Insert - VU: ${exec.vu.idInTest} - ITER: ${exec.vu.iterationInInstance} - TS: ${Date.now()}`
+        });
+        res = http.post(`${BASE_URL}/template/`, payload, params);
+
+        const success = check(res, { 'POST Insert status 201': (r) => r.status === 201 });
+        if (success) {
+            successfulRequests.add(1);
+        } else {
+            console.error(`POST Failed! Status: ${res.status} Body: ${res.body}`);
+        }
     }
 }
 

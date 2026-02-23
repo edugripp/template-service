@@ -1,9 +1,5 @@
 package com.example.template;
 
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.boot.SpringApplication;
@@ -26,7 +22,6 @@ import java.util.TimeZone;
 @EnableFeignClients(basePackages = "com.example.template")
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
 @ImportRuntimeHints(TemplateServiceApplication.MyRuntimeHints.class)
-@SecurityScheme(name = "Authorization", scheme = "basic", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
 public class TemplateServiceApplication {
 
 	public static void main(String[] args) {
