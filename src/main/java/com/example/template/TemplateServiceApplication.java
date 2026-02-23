@@ -11,17 +11,21 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TimeZone;
 
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
+
 @Primary
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.example.template")
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
 @ImportRuntimeHints(TemplateServiceApplication.MyRuntimeHints.class)
+@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class TemplateServiceApplication {
 
 	public static void main(String[] args) {
