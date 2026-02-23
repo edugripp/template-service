@@ -3,6 +3,9 @@ server:
   port: 9090
   shutdown: graceful
   forward-headers-strategy: FRAMEWORK
+  tomcat:
+    threads:
+      max: 1000
 
 spring:
   cloud:
@@ -82,8 +85,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,metrics,prometheus,shutdown,*"
+        include: "health,info,shutdown"
+  prometheus:
+    metrics:
+      export:
+        enabled: false
   metrics:
+    enable:
+      all: false
     tags:
       application: ${spring.application.name}-${spring.profiles.active}
   endpoint:

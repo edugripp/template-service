@@ -1,36 +1,35 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
+import { Counter } from 'k6/metrics';
+
+// Custom metric to summarize the total successful requests explicitly in the terminal output
+export const successfulRequests = new Counter('successful_requests_200_ok');
 
 export const options = {
     scenarios: {
         staircase: {
             executor: 'ramping-arrival-rate',
-            startRate: 1,        // Começamos o teste MUITO leve: 1 requisição por segundo
+            startRate: 1,
             timeUnit: '1s',
-            preAllocatedVUs: 10,  // Poucos VUs base alocados inicialmente
-            maxVUs: 1000,
+            preAllocatedVUs: 10,
+            maxVUs: 3000,
             stages: [
-                { duration: '10s', target: 5 },   // Sobe para 5 req/s
-                { duration: '10s', target: 10 },  // 10 req/s
-                { duration: '10s', target: 15 },  // 15 req/s
-                { duration: '10s', target: 20 },  // 20 req/s
-                { duration: '10s', target: 25 },  // 25 req/s
-                { duration: '10s', target: 30 },  // 30 req/s
-                { duration: '10s', target: 35 },  // 35 req/s
-                { duration: '10s', target: 40 },  // 40 req/s
-                { duration: '10s', target: 45 },  // 45 req/s
-                { duration: '10s', target: 50 },  // 50 req/s
-                { duration: '10s', target: 60 },
-                { duration: '10s', target: 70 },
-                { duration: '10s', target: 80 },
-                { duration: '10s', target: 90 },
+                { duration: '10s', target: 50 },
                 { duration: '10s', target: 100 },
+                { duration: '10s', target: 200 },
+                { duration: '10s', target: 300 },
+                { duration: '10s', target: 400 },
+                { duration: '10s', target: 500 },
+                { duration: '10s', target: 600 },
+                { duration: '10s', target: 800 },
+                { duration: '10s', target: 1000 },
+                { duration: '10s', target: 1300 },
+                { duration: '10s', target: 1600 },
+                { duration: '10s', target: 2000 },
             ],
         },
     },
     thresholds: {
-        // O segredo está aqui: assim que 99% das requisições baterem mais de 1000ms (1 segundo),
-        // o K6 aborta o teste automaticamente após avaliar por 5 segundos seguidos.
         http_req_duration: [
             {
                 threshold: 'p(99)<1000',
@@ -42,23 +41,50 @@ export const options = {
     summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)', 'p(99)'],
 };
 
-const BASE_URL = 'http://localhost:9090/template';
+const BASE_URL = 'http://localhost:9090';
 
-export default function () {
+export function setup() {
+    console.log("-----------------------------------------");
+    console.log("🚀 K6 Load Test Starting: Aiming for 2000 RPS");
+    console.log("-----------------------------------------");
+
+    const loginRes = http.post(`${BASE_URL}/auth/login`, JSON.stringify({
+        username: 'admin',
+        password: 'admin'
+    }), {
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    let token = '';
+    try {
+        if (loginRes.status === 200) {
+            token = loginRes.json('token');
+            console.log("✅ Successfully retrieved JWT Token!");
+        }
+    } catch (e) { }
+
+    return { token: token };
+}
+
+export default function (data) {
     const params = {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic YWRtaW46YWRtaW4=',
+            'Authorization': `Bearer ${data.token}`,
         },
     };
 
-    // Fazemos apenas GET para medir a performance pura de I/O do banco via Virtual Threads
-    let listRes = http.get(`${BASE_URL}?page=1&pageSize=10`, params);
+    const randomPage = Math.floor(Math.random() * 10) + 1; // 1 to 10
+    const randomPageSize = Math.floor(Math.random() * 41) + 10; // 10 to 50
 
-    check(listRes, {
+    let listRes = http.get(`${BASE_URL}/template?page=${randomPage}&pageSize=${randomPageSize}`, params);
+
+    const success = check(listRes, {
         'GET List status 200': (r) => r.status === 200,
     });
 
-    // Aguarda 100ms. Cada VU fará cerca de 10 chamadas por segundo.
-    //sleep(0.1);
+    if (success) {
+        successfulRequests.add(1);
+    }
 }
+

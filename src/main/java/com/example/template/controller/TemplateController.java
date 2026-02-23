@@ -36,8 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 @Validated
-@SecurityRequirement(name = "Authorization")
-
 public class TemplateController {
 
 	@Autowired
