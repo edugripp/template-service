@@ -105,8 +105,10 @@ logging:
   level: 
     #root: INFO
     com.example.template: INFO
-    
 
+metrics:
+  aggregated:
+    enabled: false
 
 eureka:
   client:

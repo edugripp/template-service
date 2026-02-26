@@ -10,7 +10,7 @@ export const options = {
     scenarios: {
         constant_load: {
             executor: 'constant-arrival-rate',
-            rate: 100,
+            rate: 1000,
             timeUnit: '1s',
             duration: '1m',
             preAllocatedVUs: 1000,
@@ -32,9 +32,6 @@ export const options = {
 const BASE_URL = 'http://localhost:9090';
 
 export function setup() {
-    console.log("-----------------------------------------");
-    console.log("🚀 K6 Load Test Starting: Aiming for Constant 1000 RPS (Mixed Workload)");
-    console.log("-----------------------------------------");
 
     const loginRes = http.post(`${BASE_URL}/auth/login`, JSON.stringify({
         username: 'admin',
@@ -47,7 +44,6 @@ export function setup() {
     try {
         if (loginRes.status === 200) {
             token = loginRes.json('token');
-            console.log("✅ Successfully retrieved JWT Token!");
         }
     } catch (e) { }
 

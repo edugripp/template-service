@@ -18,7 +18,7 @@ services:
     container_name: template
     depends_on:
       - db-mysql
-    image: docker.io/egripp/spring3-native-template/template-service:${TAG_NAME:-1.0.0-SNAPSHOT}
+    image: docker.io/egripp/spring3-native-template/template-service:1.0.0
     deploy:
       resources:
         limits:
