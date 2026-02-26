@@ -3,45 +3,35 @@ version: '3.9'
 services:
   db-mysql:
     container_name: db-mysql
-    image: mysql
+    image: mysql:8.0.33
     restart: always
+    command: --max_connections=2000
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: db
     volumes:
-      - ~/data/mysql-data:/var/lib/mysql
+      - ~/data/mysql-data-8:/var/lib/mysql
     ports:
       - 3306:3306
-    
 
-  db-postgres:
-    container_name: postgres
-    image: postgres
-    restart: always
-    environment:
-      DB_NAME: postgres
-      DB_USER: postgres
-      DB_PASS: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - ~/data/postgres-data:/var/lib/postgresql/data
-    ports:
-      - 5433:5432
-
-      
   template:
     container_name: template
     depends_on:
-      - db-mysql    
-    image:  docker.io/egripp/spring3-native-template/template-service:1.0.0
+      - db-mysql
+    image: docker.io/egripp/spring3-native-template/template-service:1.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-mysql:3306/db
+    command: [ "-Xmx800m", "-Xms800m" ]
     ports:
       - 9090:9090
 
-
 volumes:
   mysql-data:
-  postgres-data:
 
-  
+

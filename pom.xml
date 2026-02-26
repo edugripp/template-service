@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.0</version>
+		<version>4.0.3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example.template</groupId>
@@ -15,10 +15,13 @@
 	<name>template-service</name>
 	<description>Template Service</description>
 	<properties>
-		<java.version>21</java.version>
-		<spring-cloud.version>2023.0.0-M2</spring-cloud.version>
+		<java.version>25</java.version>
+		<spring-cloud.version>2025.1.1</spring-cloud.version>
 		<sonar.organization>edumgripp</sonar.organization>
 		<registry>egripp/spring3-native-template</registry>
+		<mapstruct.version>1.6.3</mapstruct.version>
+		<avaje.jsonb.version>3.11</avaje.jsonb.version>
+		<lombok.version>1.18.42</lombok.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -42,6 +45,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-json</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -56,7 +65,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.30</version>
+			<version>8.0.33</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -86,21 +95,26 @@
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.modelmapper</groupId>
-			<artifactId>modelmapper</artifactId>
-			<version>2.3.2</version>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.avaje</groupId>
+			<artifactId>avaje-jsonb</artifactId>
+			<version>${avaje.jsonb.version}</version>
 		</dependency>
 		<!--
 		https://mvnrepository.com/artifact/org.sonarsource.scanner.maven/sonar-maven-plugin -->
 		<dependency>
 			<groupId>org.sonarsource.scanner.maven</groupId>
 			<artifactId>sonar-maven-plugin</artifactId>
-			<version>3.6.0.1398</version>
+			<version>3.10.0.2594</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.0.4</version>
+			<version>2.8.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -117,7 +131,11 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
@@ -137,30 +155,37 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
 				<configuration>
-					<compilerVersion>21</compilerVersion>
+					<source>25</source>
+					<target>25</target>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>0.2.0</version>
+						</path>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${mapstruct.version}</version>
+						</path>
+						<path>
+							<groupId>io.avaje</groupId>
+							<artifactId>avaje-jsonb-generator</artifactId>
+							<version>${avaje.jsonb.version}</version>
+						</path>
+					</annotationProcessorPaths>
+					<compilerVersion>25</compilerVersion>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 
-			<plugin>
-				<groupId>org.hibernate.orm.tooling</groupId>
-				<artifactId>hibernate-enhance-maven-plugin</artifactId>
-				<version>${hibernate.version}</version>
-				<executions>
-					<execution>
-						<id>enhance</id>
-						<goals>
-							<goal>enhance</goal>
-						</goals>
-						<configuration>
-							<enableLazyInitialization>true</enableLazyInitialization>
-							<enableDirtyTracking>true</enableDirtyTracking>
-							<enableAssociationManagement>true</enableAssociationManagement>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
@@ -169,19 +194,17 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<mainClass>com.example.template.TemplateServiceApplication</mainClass>
 					<image>
-						<builder>paketobuildpacks/builder-jammy-base:0.4.342</builder>
+						<builder>arturds/builder-arm64:latest</builder>
+						<pullPolicy>IF_NOT_PRESENT</pullPolicy>
 						<env>
 							<BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
-							<BP_JVM_VERSION>21</BP_JVM_VERSION>
+							<BP_JVM_VERSION>25</BP_JVM_VERSION>
+							<BP_NATIVE_IMAGE_BUILD_ARGUMENTS>-O3 -H:+UnlockExperimentalVMOptions -H:+ReportExceptionStackTraces -H:+AddAllCharsets</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
 						</env>
-						<!--						<pullPolicy>IF_NOT_PRESENT</pullPolicy>-->
 						<name>${registry}/${project.name}:${project.version}</name>
 					</image>
-					<!-- <docker> -->
-					<!-- Remote access to  Docker Daemon -->
-					<!-- 	<host>tcp://host:port</host>
-					</docker> -->
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -191,6 +214,17 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<configuration>
+						<argLine>-Dnet.bytebuddy.experimental=true</argLine>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 	<repositories>
 		<repository>
@@ -198,24 +232,16 @@
 			<name>Spring Milestones</name>
 			<url>https://repo.spring.io/milestone</url>
 		</repository>
+
 		<repository>
-			<id>spring-releases</id>
-			<name>Spring Releases</name>
-			<url>https://repo.spring.io/release</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
+			<id>mysql</id>
+			<name>MySQL Repository</name>
+			<url>https://repo.mysql.com/maven2</url>
 		</repository>
-
-
 		<repository>
-			<id>netflix-candidates</id>
-			<name>Netflix Candidates</name>
-			<url>
-				https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-candidates</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
+			<id>central</id>
+			<name>Maven Central</name>
+			<url>https://repo.maven.apache.org/maven2</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>
@@ -237,5 +263,30 @@
 		</pluginRepository>
 	</pluginRepositories>
 
+	<profiles>
+		<profile>
+			<id>native</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.graalvm.buildtools</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<configuration>
+							<classesDirectory>${project.build.outputDirectory}</classesDirectory>
+							<metadataRepository>
+								<enabled>true</enabled>
+							</metadataRepository>
+							<buildArgs>
+								<buildArg>-O3</buildArg>
+								<buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
+								<buildArg>-H:+ReportExceptionStackTraces</buildArg>
+								<buildArg>-H:+AddAllCharsets</buildArg>
+							</buildArgs>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

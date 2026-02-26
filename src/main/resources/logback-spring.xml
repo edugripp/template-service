@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <!-- Async Console Appender to avoid blocking Virtual Threads on Docker I/O -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- How many log events to hold in memory. 1024 is plenty for bursts. -->
+        <queueSize>1024</queueSize>
+        
+        <!-- By default, AsyncAppender drops TRACE, DEBUG and INFO events when the queue is 80% full -->
+        <!-- This is a desired behavior under extreme load to prioritize CPU for business logic over logs -->
+        <discardingThreshold>20</discardingThreshold>
+        
+        <!-- Do not extract caller data (class/line numbers) as it is very expensive on CPU via reflection -->
+        <includeCallerData>false</includeCallerData>
+        
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
+    <!-- Root logger routes exclusively to the Async appender -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_CONSOLE"/>
+    </root>
+
+</configuration>
