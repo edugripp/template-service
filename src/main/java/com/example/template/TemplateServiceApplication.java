@@ -9,7 +9,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @SpringBootApplication
 @ImportRuntimeHints(TemplateServiceApplication.MyRuntimeHints.class)
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
-@EnableScheduling
 public class TemplateServiceApplication {
 
 	public static void main(String[] args) {
